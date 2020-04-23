@@ -1,10 +1,6 @@
 
 const { signMessage } = require('obyte/lib/utils');
-let conf;
-
-exports.setConfiguration = function(_conf){
-	conf = _conf;
-}
+const conf = require('./conf.js');
 
 function signMessageWithHandle(message, handleResult) {
 	console.log(message);

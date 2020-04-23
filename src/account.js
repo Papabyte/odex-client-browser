@@ -1,17 +1,9 @@
 const { fromWif, getChash160 } = require('obyte/lib/utils');
 const ecdsa = require('secp256k1');
 const obyte = require('obyte');
+const conf = require('./conf.js');
 
-
-
-let conf;
-
-
-exports.setConfiguration = function(_conf){
-	conf = _conf;
-}
-
-const client = new obyte.Client('wss://obyte.org/bb-test', conf);
+const client = new obyte.Client(conf.hub_ws_url, conf);
 
 function getOwnerAddress() {
 	const privateKey = fromWif(conf.wif, conf.testnet).privateKey;

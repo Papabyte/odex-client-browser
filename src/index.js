@@ -1,36 +1,24 @@
 /*jslint node: true */
 'use strict';
-const ws_api = require('./ws_api.js');
-
-const rest_api = require('./rest_api.js');
-const orders = require('./orders.js');
-const balances = require('./balances.js');
-const exchange = require('./exchange.js');
-const account = require('./account.js');
-const signing = require('./signing.js');
+const conf = require('./conf.js');
 
 
-if (typeof window !== 'undefined')
-	console.log('run in browser');
-else
-	console.log('not run in browser');
+async function start(_conf) {
+	Object.assign(conf, _conf);
 
+	exports.ws_api = require('./ws_api.js');
+	exports.rest_api = require('./rest_api.js');
+	exports.orders = require('./orders.js');
+	exports.balances = require('./balances.js');
+	exports.exchange = require('./exchange.js');
+	exports.account = require('./account.js');
+	exports.signing = require('./signing.js');
 
-async function start(conf) {
-	rest_api.setConfiguration(conf);
-	orders.setConfiguration(conf);
-	ws_api.setConfiguration(conf);
-	account.setConfiguration(conf);
-	signing.setConfiguration(conf);
-	await exchange.start();
-	await ws_api.connect();
+	await exports.exchange.start();
+	await exports.ws_api.connect();
 }
 
 exports.start = start;
 
-exports.ws_api = ws_api;
-exports.rest_api = rest_api;
-exports.exchange = exchange;
-exports.orders = orders;
-exports.balances = balances;
-exports.account = account;
+
+//exports.account = account;

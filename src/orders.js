@@ -6,6 +6,7 @@ const ws_api = require('./ws_api.js');
 const rest_api = require('./rest_api.js');
 const Decimal = require('decimal.js');
 const { signMessage } = require('obyte/lib/utils');
+const conf = require('./conf.js');
 
 let assocMyOrders = {};
 let bTrackingOrders = false;
@@ -19,12 +20,6 @@ Decimal.set({
 	toExpPos: 21, // default, same as for js number
 });
 
-let conf;
-
-
-exports.setConfiguration = function(_conf){
-	conf = _conf;
-}
 
 
 function toOscriptPrecision(num) {

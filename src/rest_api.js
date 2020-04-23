@@ -1,9 +1,4 @@
-
-let conf;
-
-exports.setConfiguration = function(_conf){
-	conf = _conf;
-}
+const conf = require('./conf.js');
 
 const request = (endpoint, options) => {
 	return window.fetch(`${conf.odex_http_url}${endpoint}`, {

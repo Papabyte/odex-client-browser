@@ -3,8 +3,7 @@ const WebSocket = window.WebSocket;
 
 const account = require('./account.js');
 const exchange = require('./exchange.js');
-
-let ws, conf;
+const conf = require('./conf.js');
 
 
 class WsEmitter extends EventEmitter {
@@ -15,10 +14,6 @@ class WsEmitter extends EventEmitter {
 	}
 
 
-	setConfiguration(conf){
-
-		this.conf = conf;
-	}
 	connect(onDone) {
 
 		let self = this;
@@ -37,9 +32,9 @@ class WsEmitter extends EventEmitter {
 			}
 			console.log("closing, will reopen");
 		}
-		console.log("will connect ws to " + this.conf.odex_ws_url );
+		console.log("will connect ws to " + conf.odex_ws_url );
 
-		self.ws = new WebSocket(this.conf.odex_ws_url);
+		self.ws = new WebSocket(conf.odex_ws_url);
 
 		self.ws.done = false;
 		function finishConnection(_ws, err) {
@@ -136,15 +131,9 @@ class WsEmitter extends EventEmitter {
 		if (!ws)
 			throw Error("no ws after connect");
 		
-		return new Promise(resolve => {
-			if (typeof message === 'object')
-				message = JSON.stringify(message);
-			ws.send(message, function(err){
-				if (err)
-					ws.emit('error', 'From send: ' + err);
-				resolve(err);
-			});
-		});
+		if (typeof message === 'object')
+			message = JSON.stringify(message);
+		ws.send(message);
 	}
 
 	async subscribeTrades(pairName) {
