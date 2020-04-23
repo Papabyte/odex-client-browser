@@ -3,7 +3,6 @@ const ecdsa = require('secp256k1');
 const obyte = require('obyte');
 const conf = require('./conf.js');
 
-const client = new obyte.Client(conf.hub_ws_url, conf);
 
 function getOwnerAddress() {
 	const privateKey = fromWif(conf.wif, conf.testnet).privateKey;
@@ -13,6 +12,7 @@ function getOwnerAddress() {
 
 async function getOwnerAddressBalance() {
 	const address = getOwnerAddress();
+	const client = new obyte.Client(conf.hub_ws_url, conf);
 	const result = await client.api.getBalances([address]);
 	return result[address];
 }
@@ -25,7 +25,7 @@ async function deposit(asset, amount) {
 			{ address: conf.aa_address, amount }
 		]
 	};
-	
+	const client = new obyte.Client(conf.hub_ws_url, conf);
 	const result = await client.post.payment(params, conf);
 	return result;
 
@@ -43,7 +43,7 @@ async function withdraw(asset, amount) {
 		asset
 	}
 };
-
+	const client = new obyte.Client(conf.hub_ws_url, conf);
 	const result = await client.post.payment(params, conf);
 	return result;
 }
