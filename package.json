@@ -2,8 +2,8 @@
   "name": "odex-client-browser",
   "version": "1.0.0",
   "description": "",
-	"main": "src/index.js",
-	"repository": {
+  "main": "src/index.js",
+  "repository": {
     "type": "git",
     "url": "https://github.com/Papabyte/odex-client-browser.git"
   },
@@ -15,9 +15,9 @@
   "author": "",
   "license": "MIT",
   "dependencies": {
+    "decimal.js": "^10.2.0",
     "obyte": "^0.1.7",
-    "secp256k1": "^3.7.1",
-    "decimal.js": "^10.2.0"
+    "secp256k1": "^3.7.1"
   },
   "devDependencies": {
     "webpack": "^4.42.1",

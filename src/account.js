@@ -4,19 +4,23 @@ const obyte = require('obyte');
 const conf = require('./conf.js');
 
 
-function getOwnerAddress() {
-	const privateKey = fromWif(conf.wif, conf.testnet).privateKey;
-	const definition = conf.definition || ['sig', { pubkey: ecdsa.publicKeyCreate(privateKey).toString('base64')}];
-	return getChash160(definition);
-}
-
-async function getOwnerAddressBalance() {
-	const address = getOwnerAddress();
+async function getBalance() {
+	const address = getAddress();
 	const client = new obyte.Client(conf.hub_ws_url, conf);
 	const result = await client.api.getBalances([address]);
 	return result[address];
 }
 
+
+function getAddress() {
+	const privateKey = fromWif(conf.wif, conf.testnet).privateKey;
+	const definition = conf.definition || ['sig', { pubkey: ecdsa.publicKeyCreate(privateKey).toString('base64')}];
+	return getChash160(definition);
+}
+
+function getOwnerAddress() {
+	return conf.owner_address || getAddress();
+}
 async function deposit(asset, amount) {
 
 	const params = {
@@ -49,7 +53,8 @@ async function withdraw(asset, amount) {
 }
 
 
+exports.getAddress = getAddress;
 exports.getOwnerAddress = getOwnerAddress;
-exports.getOwnerAddressBalance = getOwnerAddressBalance;
+exports.getBalance = getBalance;
 exports.deposit = deposit;
 exports.withdraw = withdraw;

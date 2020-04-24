@@ -159,7 +159,7 @@ function updateMyOrder(order) {
 }
 
 async function initMyOrders() {
-	let my_orders = await rest_api.fetchCurrentOrders(account.getAddress());
+	let my_orders = await rest_api.fetchCurrentOrders(account.getOwnerAddress());
 	my_orders.forEach(order => {
 		assocMyOrders[order.hash] = order;
 	});
@@ -167,7 +167,7 @@ async function initMyOrders() {
 
 async function resetMyOrders() {
 	console.log("resetting my orders");
-	let my_orders = await rest_api.fetchCurrentOrders(account.getAddress());
+	let my_orders = await rest_api.fetchCurrentOrders(account.getOwnerAddress());
 	for (let hash in assocMyOrders)
 		delete assocMyOrders[hash];
 	my_orders.forEach(order => {
