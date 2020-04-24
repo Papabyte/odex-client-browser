@@ -8,6 +8,7 @@ async function getBalance() {
 	const address = getAddress();
 	const client = new obyte.Client(conf.hub_ws_url, conf);
 	const result = await client.api.getBalances([address]);
+	client.close();
 	return result[address];
 }
 
@@ -31,6 +32,7 @@ async function deposit(asset, amount) {
 	};
 	const client = new obyte.Client(conf.hub_ws_url, conf);
 	const result = await client.post.payment(params, conf);
+	client.close();
 	return result;
 
 }
@@ -49,6 +51,7 @@ async function withdraw(asset, amount) {
 };
 	const client = new obyte.Client(conf.hub_ws_url, conf);
 	const result = await client.post.payment(params, conf);
+	client.close();
 	return result;
 }
 
