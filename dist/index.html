@@ -1,0 +1,117 @@
+<!doctype html>
+<html>
+  <head>
+		<script src="ocb.min.js"></script>
+		<script src="	https://code.jquery.com/jquery-3.5.0.min.js"></script>
+		<title>Odex client browser example</title>
+		<style>
+			div {
+				padding:1rem;
+			}
+		</style>
+	</head>
+	<body>
+		<div id="account-address">
+			Account address: 
+		</div>
+		<div id="account-balances">
+			Balances:
+		</div>
+		<div>
+			<input type="number" id="deposit-value"  />
+			<button id= "deposit-button" type="button">Deposit</button>
+		</div>
+		<div>
+			<input type="number" id="withdraw-value"  />
+			<button id= "withdraw-button" type="button">Withdraw</button>
+		</div>
+		<div>
+		<form>
+			<label for="order-pair">Pair:</label>
+			<input type="text" id="order-pair"  />
+			<label for="order-side">Side (SELL or BUY):</label>
+			<input type="text" id="order-side"  />
+			<label for="order-amount">Amount: </label>
+			<input type="number" id="order-amount"  />
+			<label for="order-price">Price:
+			<input type="number" id="order-price"  />
+			<button id= "create-order-button" type="button">Create order</button>
+		</form>
+		<span id="order-hashes">
+			<br>
+			Order hashes: <br>
+		</span>
+		</div>
+		<div>
+			<form>
+				<label for="order-hash">Order hash:</label>
+				<input type="text" id="order-hash"  />
+				<button id= "cancel-order-button" type="button">Cancel order</button>
+			</form>
+		</div>
+
+		<div id="deposited-balances">
+			Deposited on AA: 
+		</div>
+
+		<div id="ws-api">
+			Ws API events:<br>
+		</div>
+
+<script>
+
+async function start(){
+
+	await ocb.start({
+		testnet: true,
+		hub_ws_url: 'wss://obyte.org/bb-test',
+		odex_ws_url: 'wss://testnet.odex.ooo/socket',
+		odex_http_url: 'https://testnet.odex.ooo/api',
+		wif: "92jJudghryckCiDX4QDvFjWD5DUhxj82FwZ19zNwNxdEdfP4wZR"
+	});
+
+	$('#account-address').append(ocb.account.getAddress());
+	
+	var balances = await ocb.account.getBalance();
+	for (var key in balances){
+		$('#account-balances').append("<br>" + key +': ' + balances[key].stable +" (stable) "  + balances[key].pending + " (pending)");
+	}
+	
+	$( "#deposit-button" ).click(async function() {
+		console.log(await ocb.account.deposit(null, Number($( "#deposit-value" ).val())));
+	});
+
+	$( "#withdraw-button" ).click(async function() {
+		console.log(await ocb.account.withdraw(null, $( "#withdraw-value" ).val()));
+	});
+
+	$( "#create-order-button" ).click(async () =>{
+		var pair = $( "#order-pair" ).val();
+		var amount = Number($( "#order-amount" ).val());
+		var price = Number($( "#order-price" ).val());
+		var order_hash = await ocb.orders.createAndSendOrder(pair , amount , price);
+		$( "#order-hashes" ).append(order_hash + "<br>");
+	});
+
+	$( "#cancel-order-button" ).click(async function() {
+		console.log(await ocb.orders.createAndSendCancel( $( "#order-hash" ).val()));
+	});
+
+	var deposited  = await ocb.rest_api.getBalances(ocb.account.getOwnerAddress());
+	for (var key in deposited){
+		$('#deposited-balances').append("<br>" + key +': ' + deposited[key]);
+	}
+
+	ocb.ws_api.on("orders", function(type, payload){
+		$('#ws-api').append("Type: " + type + " Payload:" + JSON.stringify(payload).slice(0,250) + "<br>");
+	})
+	ocb.ws_api.on("balances", function(type, payload){
+		$('#ws-api').append("Type: " + type + " Payload:" + JSON.stringify(payload).slice(0,250) + "<br>");
+	})
+}
+		start()
+	</script>
+
+
+  </body>
+</html>

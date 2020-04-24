@@ -1,6 +1,6 @@
 .DS_Store
 node_modules
-dist
+dist/ocb.min.js
 package-lock.json
 
 # local env files
