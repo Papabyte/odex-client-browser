@@ -11,6 +11,7 @@
 		</style>
 	</head>
 	<body>
+		
 		<div id="account-address">
 			Account address: 
 		</div>
@@ -89,7 +90,8 @@ async function start(){
 		var pair = $( "#order-pair" ).val();
 		var amount = Number($( "#order-amount" ).val());
 		var price = Number($( "#order-price" ).val());
-		var order_hash = await ocb.orders.createAndSendOrder(pair , amount , price);
+		var side = $( "#order-side" ).val();
+		var order_hash = await ocb.orders.createAndSendOrder(pair , side, amount , price);
 		$( "#order-hashes" ).append(order_hash + "<br>");
 	});
 
