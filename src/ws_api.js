@@ -96,7 +96,6 @@ class WsEmitter extends EventEmitter {
 		if (_ws.readyState !== _ws.OPEN)
 			return console.log("received a message on ODEX socket with ready state " + _ws.readyState);
 		
-	//	console.log('received from ODEX '+ message);
 		_ws.last_ts = Date.now();
 		
 		try {
@@ -107,11 +106,8 @@ class WsEmitter extends EventEmitter {
 		catch(e){
 			return console.log('failed to json.parse message '+message);
 		}
-	//	if (typeof payload !== 'object')
-	//		return console.log('payload is not an object: ' + payload);
 		
 		let channel = objMessage.channel;
-	//	console.log('received from ODEX parsed:', objMessage);
 		this.emit(channel, type, payload);
 	}
 
@@ -245,17 +241,3 @@ class WsEmitter extends EventEmitter {
 }
 
 module.exports = new WsEmitter();
-/*
-exports.connect = connect;
-exports.send = send;
-
-exports.subscribeTrades = subscribeTrades;
-exports.subscribeOrderbook = subscribeOrderbook;
-exports.subscribeRawOrderbook = subscribeRawOrderbook;
-exports.subscribeOHLCV = subscribeOHLCV;
-
-exports.sendAddress = sendAddress;
-exports.sendOrder = sendOrder;
-exports.sendCancel = sendCancel;
-*/
-//util.inherits(module.exports, EventEmitter);*/

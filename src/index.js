@@ -19,6 +19,3 @@ async function start(_conf) {
 }
 
 exports.start = start;
-
-
-//exports.account = account;

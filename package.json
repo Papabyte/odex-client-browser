@@ -8,8 +8,8 @@
     "url": "https://github.com/Papabyte/odex-client-browser.git"
   },
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "build": "webpack"
+    "build": "webpack",
+    "start": "webpack-dev-server --mode development"
   },
   "keywords": [],
   "author": "",
@@ -20,7 +20,9 @@
     "secp256k1": "^3.7.1"
   },
   "devDependencies": {
+    "html-webpack-plugin": "^4.2.0",
     "webpack": "^4.42.1",
-    "webpack-cli": "^3.3.11"
+    "webpack-cli": "^3.3.11",
+    "webpack-dev-server": "^3.10.3"
   }
 }
