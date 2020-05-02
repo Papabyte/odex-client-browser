@@ -22,6 +22,26 @@ function getAddress() {
 function getOwnerAddress() {
 	return conf.owner_address || getAddress();
 }
+
+async function isAuthorizationGranted(){
+
+	if (!conf.owner_address)
+		return true;
+	const client = new obyte.Client(conf.hub_ws_url, conf);
+
+	const result = await client.api.getAaStateVars({
+		address: conf.aa_address,
+		var_prefix: `grant_${conf.owner_address}_to_${getAddress()}`,
+	});
+	client.close();
+
+	if (Object.keys(result).length == 1)
+		return true;
+	else
+		return false;
+}
+
+
 async function deposit(asset, amount) {
 
 	const params = {
@@ -61,3 +81,4 @@ exports.getOwnerAddress = getOwnerAddress;
 exports.getBalance = getBalance;
 exports.deposit = deposit;
 exports.withdraw = withdraw;
+exports.isAuthorizationGranted = isAuthorizationGranted;
