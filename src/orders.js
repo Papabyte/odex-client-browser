@@ -1,5 +1,4 @@
 const crypto = require('crypto');
-const signing = require('./signing.js');
 const exchange = require('./exchange.js');
 const account = require('./account.js');
 const ws_api = require('./ws_api.js');
