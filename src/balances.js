@@ -25,5 +25,10 @@ async function getBalances() {
 	return assocBalances;
 }
 
+function resetBalances(){
+	assocBalances = null;
+}
+
 
 exports.getBalances = getBalances;
+exports.resetBalances = resetBalances;

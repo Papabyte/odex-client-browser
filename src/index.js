@@ -12,7 +12,8 @@ async function start(_conf) {
 	exports.balances = require('./balances.js');
 	exports.exchange = require('./exchange.js');
 	exports.account = require('./account.js');
-
+	
+	exports.balances.resetBalances();
 	await exports.exchange.start();
 	await exports.ws_api.connect();
 }

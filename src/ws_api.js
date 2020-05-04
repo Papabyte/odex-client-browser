@@ -27,7 +27,7 @@ class WsEmitter extends EventEmitter {
 			}
 			if (!self.ws.done) {
 				console.log("already connecting");
-				self.on('done', onDone);
+				self.once('done', onDone);
 				return;
 			}
 			console.log("closing, will reopen");
