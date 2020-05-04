@@ -33,6 +33,7 @@ class WsEmitter extends EventEmitter {
 			console.log("closing, will reopen");
 		}
 		console.log("will connect ws to " + conf.odex_ws_url );
+		self.shouldClose = false;
 
 		self.ws = new WebSocket(conf.odex_ws_url);
 
@@ -72,18 +73,15 @@ class WsEmitter extends EventEmitter {
 			console.log('ws closed');
 			clearTimeout(timeout);
 			self.ws = null;
+			if (self.shouldClose)
+				return console.log('closing was requested');
 			setTimeout(self.connect.bind(self), 1000);
 			finishConnection(this, 'closed');
 			self.emit('disconnected');
 		};
 
 		self.ws.onerror = function onWsError(e) {
-			console.log("error from WS server: " + e);
-			clearTimeout(timeout);
-			var err = e.toString();
-			self.ws = null;
-			setTimeout(self.connect.bind(self), 1000);
-			finishConnection(this, err);
+			console.log("error from WS server");
 		};
 
 		self.ws.onmessage = function (message) { // 'this' is set to ws
@@ -113,6 +111,11 @@ class WsEmitter extends EventEmitter {
 
 	isConnected() {
 		return (this.ws && this.ws.readyState === this.ws.OPEN);
+	}
+
+	close() {
+		this.shouldClose = true;
+		this.ws.close();
 	}
 
 	async send(message) {

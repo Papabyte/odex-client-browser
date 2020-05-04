@@ -18,4 +18,9 @@ async function start(_conf) {
 	await exports.ws_api.connect();
 }
 
+async function stop(){
+	exports.ws_api.close();
+}
+
 exports.start = start;
+exports.stop = stop;
