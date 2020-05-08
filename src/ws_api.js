@@ -22,15 +22,15 @@ class WsEmitter extends EventEmitter {
 
 		if (self.ws) {
 			if (self.ws.readyState === self.ws.OPEN) {
-				console.log("already connected");
+				console.log("odex ws already connected");
 				return onDone();
 			}
 			if (!self.ws.done) {
-				console.log("already connecting");
+				console.log("odex ws already connecting");
 				self.once('done', onDone);
 				return;
 			}
-			console.log("closing, will reopen");
+			console.log("odex closing, will reopen");
 		}
 		console.log("will connect ws to " + conf.odex_ws_url );
 		self.shouldClose = false;
@@ -50,12 +50,13 @@ class WsEmitter extends EventEmitter {
 		let abandoned = false;
 		let timeout = setTimeout(function () {
 			abandoned = true;
+			console.log("odex ws abandonned");
 			finishConnection(self.ws, 'timeout');
 			self.ws = null;
 		}, 5000);
 
 		self.ws.onopen = function onWsOpen() {
-			console.log('ws opened');
+			console.log('odex ws opened');
 			if (abandoned) {
 				console.log("abandoned connection opened, will close");
 				this.close();
@@ -70,18 +71,18 @@ class WsEmitter extends EventEmitter {
 		};
 
 		self.ws.onclose = function onWsClose() {
-			console.log('ws closed');
+			console.log('odex ws closed');
 			clearTimeout(timeout);
 			self.ws = null;
 			if (self.shouldClose)
-				return console.log('closing was requested');
+				return;
 			setTimeout(self.connect.bind(self), 1000);
 			finishConnection(this, 'closed');
 			self.emit('disconnected');
 		};
 
 		self.ws.onerror = function onWsError(e) {
-			console.log("error from WS server");
+			console.log("on error from Odex WS server");
 		};
 
 		self.ws.onmessage = function (message) { // 'this' is set to ws
@@ -93,7 +94,6 @@ class WsEmitter extends EventEmitter {
 	onWebsocketMessage(_ws, message) {
 		if (_ws.readyState !== _ws.OPEN)
 			return console.log("received a message on ODEX socket with ready state " + _ws.readyState);
-		
 		_ws.last_ts = Date.now();
 		
 		try {
@@ -118,21 +118,33 @@ class WsEmitter extends EventEmitter {
 		this.ws.close();
 	}
 
-	async send(message) {
-		let ws = this.ws;
-		if (!ws || ws.readyState !== ws.OPEN) {
-			let err = await this.connect();
-			if (err)
-				return err;
-			ws = this.ws;
-		}
+	send(message) {
+		return new Promise(async (resolve)=>{
+			let ws = this.ws;
+			if (!ws || ws.readyState !== ws.OPEN) {
+				let err = await this.connect();
+				if (err)
+					return err;
+				ws = this.ws;
+			}
 
-		if (!ws)
-			throw Error("no ws after connect");
-		
-		if (typeof message === 'object')
-			message = JSON.stringify(message);
-		ws.send(message);
+			if (!ws)
+				throw Error("no ws after connect");
+			
+			if (typeof message === 'object')
+				message = JSON.stringify(message);
+
+			try {
+				ws.send(message); // this function can fail even if readyState was on OPEN
+			} catch (e) {
+				console.log('failed send ' + e.toString());
+				return setTimeout(async ()=>{
+					await this.send(message);
+					resolve();
+				}, 500)
+			}
+			resolve();
+		});
 	}
 
 	async subscribeTrades(pairName) {
