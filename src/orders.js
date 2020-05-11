@@ -8,7 +8,6 @@ const { signMessage } = require('obyte/lib/utils');
 const conf = require('./conf.js');
 
 let assocMyOrders = {};
-let bTrackingOrders = false;
 
 Decimal.set({
 	precision: 15, // double precision is 15.95 https://en.wikipedia.org/wiki/IEEE_754
@@ -138,18 +137,17 @@ async function createCancel(hash) {
 
 async function createAndSendOrder(pair, side, amount, price, matcher) {
 	let signedOrder = await createOrder(pair, side, amount, price, matcher);
-	await ws_api.sendOrder(signedOrder);
-	return getOrderHash(signedOrder);
+	return await ws_api.sendOrder(signedOrder) ? null : getOrderHash(signedOrder);
 }
 
 async function createAndSendCancel(hash) {
 	let signedCancel = await createCancel(hash);
-	await ws_api.sendCancel(signedCancel);
+	return await ws_api.sendCancel(signedCancel);
 }
 
 
 function updateMyOrder(order) {
-	if (order.originalOrder.address !== account.getOwnerAddress())
+	if (order.originalOrder.signed_message.address !== account.getOwnerAddress())
 		return;
 	if (order.status === 'FILLED')
 		delete assocMyOrders[order.hash];
@@ -159,6 +157,8 @@ function updateMyOrder(order) {
 
 async function initMyOrders() {
 	let my_orders = await rest_api.fetchCurrentOrders(account.getOwnerAddress());
+	for (let hash in assocMyOrders)
+		delete assocMyOrders[hash];
 	my_orders.forEach(order => {
 		assocMyOrders[order.hash] = order;
 	});
@@ -175,11 +175,9 @@ async function resetMyOrders() {
 }
 
 async function trackMyOrders() {
-	if (bTrackingOrders) // already tracking, don't duplicate event handlers
-		return;
-	bTrackingOrders = true;
+
 	ws_api.on('orders', (type, payload) => {
-		console.error('---- received orders', type, payload);
+		console.error('---- trackMyOrders', type, payload);
 		switch (type) {
 			case 'ORDER_ADDED':
 				var order = payload;

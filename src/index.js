@@ -20,6 +20,7 @@ async function start(_conf) {
 
 async function stop(){
 	exports.ws_api.close();
+	exports.ws_api.removeAllListeners();
 }
 
 exports.start = start;

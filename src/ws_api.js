@@ -57,12 +57,13 @@ class WsEmitter extends EventEmitter {
 
 		self.ws.onopen = function onWsOpen() {
 			console.log('odex ws opened');
-			if (abandoned) {
+			if (!self.ws || abandoned) {
 				console.log("abandoned connection opened, will close");
 				this.close();
 				return;
 			}
 			clearTimeout(timeout);
+
 			self.ws.last_ts = Date.now();
 			console.log('connected');
 			finishConnection(this);
@@ -124,7 +125,7 @@ class WsEmitter extends EventEmitter {
 			if (!ws || ws.readyState !== ws.OPEN) {
 				let err = await this.connect();
 				if (err)
-					return err;
+					return resolve(err);
 				ws = this.ws;
 			}
 
@@ -135,7 +136,7 @@ class WsEmitter extends EventEmitter {
 				message = JSON.stringify(message);
 
 			try {
-				ws.send(message); // this function can fail even if readyState was on OPEN
+				ws.send(message); // it can fail even if readyState was on OPEN
 			} catch (e) {
 				console.log('failed send ' + e.toString());
 				return setTimeout(async ()=>{
