@@ -116,7 +116,8 @@ class WsEmitter extends EventEmitter {
 
 	close() {
 		this.shouldClose = true;
-		this.ws.close();
+		if (this.ws)
+			this.ws.close();
 	}
 
 	send(message) {
