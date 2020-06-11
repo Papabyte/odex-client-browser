@@ -39,11 +39,10 @@ class WsEmitter extends EventEmitter {
 
 		self.ws.done = false;
 		function finishConnection(_ws, err) {
-			if (!_ws.done) {
+			if (_ws && !_ws.done) {
 				_ws.done = true;
 				onDone(err);
-				if (_ws)
-					self.emit('done', err);
+				self.emit('done', err);
 			}
 		}
 
