@@ -11,7 +11,7 @@ The library can be used as a javascript bundle included in your webpage.
 Install Node 8 or superior
 
 ```sh
-git clone https://github.com/Papabyte/odex-client-browser.git
+git clone https://github.com/byteball/odex-client-browser.git
 cd odex-client-browser
 npm install
 npm run build
@@ -27,7 +27,7 @@ The library can be included in a project using webpack (like vuejs or react-js)
 Add odex-client-browser as a dependency in your package.json:
 ```json
 	"dependencies": {
-		"odex-client-browser": "git+https://github.com/Papabyte/odex-client-browser.git"
+		"odex-client-browser": "git+https://github.com/byteball/odex-client-browser.git"
 	}
 ```
 
