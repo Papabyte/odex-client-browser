@@ -149,23 +149,17 @@ async function createAndSendCancel(hash) {
 function updateMyOrder(order) {
 	if (order.originalOrder.signed_message.address !== account.getOwnerAddress())
 		return;
-	if (order.status === 'FILLED')
+	if (order.status === 'FILLED'){
 		delete assocMyOrders[order.hash];
-	else
+		ws_api.emit('my_order_removed', order.hash);
+	}
+	else {
 		assocMyOrders[order.hash] = order;
+		ws_api.emit('my_order_added', order.hash);
+	}
 }
 
 async function initMyOrders() {
-	let my_orders = await rest_api.fetchCurrentOrders(account.getOwnerAddress());
-	for (let hash in assocMyOrders)
-		delete assocMyOrders[hash];
-	my_orders.forEach(order => {
-		assocMyOrders[order.hash] = order;
-	});
-}
-
-async function resetMyOrders() {
-	console.log("resetting my orders");
 	let my_orders = await rest_api.fetchCurrentOrders(account.getOwnerAddress());
 	for (let hash in assocMyOrders)
 		delete assocMyOrders[hash];
@@ -181,12 +175,16 @@ async function trackMyOrders() {
 		switch (type) {
 			case 'ORDER_ADDED':
 				var order = payload;
-				if (order.status === 'OPEN' || order.status === 'PARTIAL_FILLED')
+				if (order.status === 'OPEN' || order.status === 'PARTIAL_FILLED'){
 					assocMyOrders[order.hash] = order;
+					ws_api.emit('my_order_added', order.hash);
+				}
 				break;
 			case 'ORDER_CANCELLED':
 				var order = payload;
 				delete assocMyOrders[order.hash];
+				if (order.originalOrder.signed_message.address === account.getOwnerAddress())
+					ws_api.emit('my_order_removed', order.hash);
 				break;
 			case 'ORDER_MATCHED':
 		//	case 'ORDER_PENDING':
@@ -196,10 +194,11 @@ async function trackMyOrders() {
 				break;
 		}
 	});
-	if (ws_api.isConnected()) // we've already missed 'connected' event
+	if (ws_api.isConnected()){// we've already missed 'connected' event
 		await initMyOrders();
+	}
 	ws_api.on('connected', async () => {
-		await resetMyOrders();
+		await initMyOrders();
 		ws_api.emit('reset_orders');
 	});
 }
