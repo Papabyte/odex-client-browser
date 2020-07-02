@@ -43,34 +43,58 @@ async function isAuthorizationGranted(){
 
 
 async function deposit(asset, amount) {
-
-	const params = {
-		asset,
-		outputs: [
-			{ address: conf.aa_address, amount }
-		]
-	};
+	asset = asset || 'base';
+	const params = [{
+		app: 'payment',
+		payload: {
+			outputs: [
+				{ address: conf.aa_address, 
+					amount: asset === 'base' ? amount : 10000
+				}
+			]
+		}
+	}];
+	if (asset !== 'base')
+		params.push({
+			app: 'payment',
+			payload: {
+				asset,
+				outputs: [
+					{
+						address: conf.aa_address, 
+						amount
+					}
+				]
+			}
+		});
 	const client = new obyte.Client(conf.hub_ws_url, conf);
-	const result = await client.post.payment(params, conf);
+	const result = await client.post.multi(params, conf);
 	client.close();
 	return result;
-
 }
 
 async function withdraw(asset, amount) {
 	asset = asset || 'base';
-	const params = {
-	outputs: [
-		{ address: conf.aa_address, amount: 10000 }
-	],
-	data: {
-		withdraw: 1,
-		amount: amount,
-		asset
-	}
-};
+	const params = [
+		{
+			app: 'payment',
+			payload: {
+				outputs: [
+					{ address: conf.aa_address, amount: 10000 }
+				]
+			}
+		},
+		{
+			app: 'data',
+			payload: {
+				withdraw: 1,
+				amount: amount,
+				asset
+			}
+		}
+	];
 	const client = new obyte.Client(conf.hub_ws_url, conf);
-	const result = await client.post.payment(params, conf);
+	const result = await client.post.multi(params, conf);
 	client.close();
 	return result;
 }
