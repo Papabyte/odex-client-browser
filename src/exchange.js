@@ -30,7 +30,7 @@ function getTokensByAsset() {
 	return tokensByAsset;
 }
 
-function getTokensByPair(pair) {
+async function getTokensByPair(pair) {
 	if (!tokensBySymbol)
 		throw Error("no tokensBySymbol yet");
 	let [baseSymbol, quoteSymbol] = pair.split('/');
@@ -38,10 +38,22 @@ function getTokensByPair(pair) {
 		throw Error('bad pair: ' + pair);
 	let baseToken = tokensBySymbol[baseSymbol];
 	let quoteToken = tokensBySymbol[quoteSymbol];
-	if (!baseToken)
-		throw Error("base token not found: " + baseSymbol);
-	if (!quoteToken)
-		throw Error("quote token not found: " + quoteSymbol);
+	if (!baseToken){
+		baseToken = await rest_api.fetchToken(baseSymbol);
+		if (baseToken){
+			tokensByAsset[baseToken.asset] = baseToken;
+			tokensBySymbol[baseToken.symbol] = baseToken;
+		} else
+			throw Error("base token not found: " + baseSymbol);
+	}
+	if (!quoteToken){
+		quoteToken = await rest_api.fetchToken(quoteSymbol);
+		if (token){
+			tokensByAsset[quoteToken.asset] = quoteToken;
+			tokensBySymbol[quoteToken.symbol] = quoteToken;
+		} else
+			throw Error("quote token not found: " + quoteSymbol);
+	} 
 	if (!quoteToken.quote)
 		throw Error(quoteSymbol + " is not a quote token");
 	return [baseToken, quoteToken];
@@ -52,11 +64,11 @@ function getAssetsByPair(pair) {
 	return [baseToken.asset, quoteToken.asset];
 }
 
+
 async function start() {
 	const info = await rest_api.fetchInfo();
 	operatorAddress = info.operatorAddress;
 	fees = info.fees;
-
 	const tokens = await rest_api.fetchTokens();
 	tokensByAsset = {};
 	tokensBySymbol = {};

@@ -62,8 +62,8 @@ function adjustPriceToAllowedPrecision(base_asset, quote_asset, side, price) {
 	return (side === "SELL") ? order_info.price : 1 / order_info.price;
 }
 
-async function createOrder(pair, side, amount, price, matcher) {
-	let [baseToken, quoteToken] = exchange.getTokensByPair(pair);
+async function createOrder(pair, side, amount, price, matcher, expiry_ts) {
+	let [baseToken, quoteToken] = await exchange.getTokensByPair(pair);
 	
 	let { matcherFee, affiliateFee } = exchange.getFees(quoteToken.symbol);
 
@@ -109,6 +109,8 @@ async function createOrder(pair, side, amount, price, matcher) {
 		order_info.affiliate_fee_asset = quoteToken.asset;
 		order_info.affiliate_fee = Math.ceil(fee_asset_amount * affiliateFee);			
 	}
+	if (expiry_ts)
+		order_info.expiry_ts = expiry_ts;
 	return await createOrderInAssets(order_info);
 }
 
@@ -135,8 +137,8 @@ async function createCancel(hash) {
 }
 
 
-async function createAndSendOrder(pair, side, amount, price, matcher) {
-	let signedOrder = await createOrder(pair, side, amount, price, matcher);
+async function createAndSendOrder(pair, side, amount, price, matcher, expiry_ts) {
+	let signedOrder = await createOrder(pair, side, amount, price, matcher, expiry_ts);
 	return await ws_api.sendOrder(signedOrder) ? null : getOrderHash(signedOrder);
 }
 
